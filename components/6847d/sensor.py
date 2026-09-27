@@ -5,7 +5,7 @@ from esphome.components import i2c, sensor
 
 DEPENDENCIES = ["i2c"]
 
-ns = cg.esphome_ns.namespace("6847d")
+ns = cg.esphome_ns.namespace("xgzp6847d")
 
 Sensor6847D = ns.class_(
     "Sensor6847D",
