@@ -8,7 +8,7 @@ AUTO_LOAD = ["sensor"]
 ns = cg.esphome_ns.namespace("6847d")
 Sensor6847D = ns.class_("Sensor6847D", sensor.Sensor, cg.PollingComponent)
 
-CONFIG_SCHEMA = sensor.sensor_schema(Sensor6847D).extend({
+CONFIG_SCHEMA = sensor.sensor_schema(Sensor6847D, update_interval=50).extend({
     cv.Optional(CONF_UPDATE_INTERVAL, default="50ms"): cv.update_interval,
 })
 
