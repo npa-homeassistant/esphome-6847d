@@ -28,32 +28,42 @@ void Sensor6847D::update() {
 }
 
 bool Sensor6847D::read_pressure(float *pressure_kpa) {
-  // Start a combined pressure/temperature conversion.
   uint8_t command = CMD_MEASURE;
 
-  if (!this->write_register(CMD_REGISTER, &command, 1)) {
-    ESP_LOGW(TAG, "Failed to start conversion");
+  // Start pressure/temperature conversion by writing 0x0A to register 0x30.
+  auto err = this->write_register(CMD_REGISTER, &command, 1);
+
+  if (err != i2c::ERROR_OK) {
+    ESP_LOGW(
+        TAG,
+        "Failed to start conversion: I2C error=%d",
+        static_cast<int>(err)
+    );
     return false;
   }
 
-  // Allow the sensor to complete the conversion.
   delay(20);
 
-  // Read the three pressure bytes.
   uint8_t data[3];
 
-  if (!this->read_register(PRESSURE_MSB, data, 3)) {
-    ESP_LOGW(TAG, "Failed to read pressure registers");
+  // Read the 24-bit pressure result from registers 0x06–0x08.
+  err = this->read_register(PRESSURE_MSB, data, 3);
+
+  if (err != i2c::ERROR_OK) {
+    ESP_LOGW(
+        TAG,
+        "Failed to read pressure registers: I2C error=%d",
+        static_cast<int>(err)
+    );
     return false;
   }
 
-  // Assemble the 24-bit value.
   uint32_t raw =
       (static_cast<uint32_t>(data[0]) << 16) |
       (static_cast<uint32_t>(data[1]) << 8) |
       static_cast<uint32_t>(data[2]);
 
-  // Convert 24-bit two's-complement to signed int32.
+  // Convert the 24-bit two's-complement value to a signed integer.
   int32_t signed_raw;
 
   if (raw & 0x800000) {
@@ -62,9 +72,7 @@ bool Sensor6847D::read_pressure(float *pressure_kpa) {
     signed_raw = static_cast<int32_t>(raw);
   }
 
-  // K = 64 for the -100 to +100 kPa version.
-  //
-  // Result from the sensor is in Pa.
+  // Keep the existing conversion unchanged for this diagnostic test.
   const float pressure_pa =
       static_cast<float>(signed_raw) / PRESSURE_K;
 
