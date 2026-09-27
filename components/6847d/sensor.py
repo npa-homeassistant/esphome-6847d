@@ -1,4 +1,3 @@
-```python
 import esphome.codegen as cg
 import esphome.config_validation as cv
 
@@ -22,5 +21,3 @@ CONFIG_SCHEMA = sensor.sensor_schema(
 async def to_code(config):
     var = await sensor.new_sensor(config)
     await cg.register_component(var, config)
-```
-
