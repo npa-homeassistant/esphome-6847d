@@ -1,4 +1,3 @@
-```python
 import esphome.codegen as cg
 import esphome.config_validation as cv
 
@@ -28,4 +27,3 @@ async def to_code(config):
     var = await sensor.new_sensor(config)
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
-```
