@@ -4,6 +4,7 @@ import esphome.config_validation as cv
 from esphome.components import sensor
 
 ns = cg.esphome_ns.namespace("6847d")
+
 Sensor6847D = ns.class_(
     "Sensor6847D",
     cg.PollingComponent,
@@ -20,4 +21,3 @@ CONFIG_SCHEMA = sensor.sensor_schema(
 async def to_code(config):
     var = await sensor.new_sensor(config)
     await cg.register_component(var, config)
-
