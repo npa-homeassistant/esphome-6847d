@@ -1,19 +1,23 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor
-from esphome.const import CONF_ID
 
-AUTO_LOAD = ["sensor"]
+from esphome.components import sensor
 
 ns = cg.esphome_ns.namespace("6847d")
-Sensor6847D = ns.class_("Sensor6847D", sensor.Sensor, cg.PollingComponent)
+Sensor6847D = ns.class_(
+    "Sensor6847D",
+    cg.PollingComponent,
+    sensor.Sensor,
+)
 
-CONFIG_SCHEMA = sensor.sensor_schema(Sensor6847D).extend(
+CONFIG_SCHEMA = sensor.sensor_schema(
+    Sensor6847D,
+).extend(
     cv.polling_component_schema("50ms")
 )
 
-def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    yield cg.register_component(var, config)
-    yield sensor.register_sensor(var, config)
+
+async def to_code(config):
+    var = await sensor.new_sensor(config)
+    await cg.register_component(var, config)
 
