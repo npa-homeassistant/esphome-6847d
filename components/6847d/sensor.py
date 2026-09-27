@@ -19,3 +19,4 @@ def to_code(config):
     yield sensor.register_sensor(var, config)
 
 
+
