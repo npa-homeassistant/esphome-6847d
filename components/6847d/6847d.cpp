@@ -1,7 +1,7 @@
 #include "6847d.h"
 
 namespace esphome {
-namespace 6847d {
+namespace xgzp6847d {
 
 static const char *const TAG = "6847d";
 
@@ -9,8 +9,6 @@ static const uint8_t CMD_REGISTER = 0x30;
 static const uint8_t CMD_MEASURE = 0x0A;
 
 static const uint8_t PRESSURE_MSB = 0x06;
-static const uint8_t PRESSURE_CSB = 0x07;
-static const uint8_t PRESSURE_LSB = 0x08;
 
 static const float PRESSURE_K = 64.0f;
 
@@ -22,15 +20,15 @@ void Sensor6847D::update() {
   float pressure_kpa;
 
   if (this->read_pressure(&pressure_kpa)) {
-    publish_state(pressure_kpa);
+    this->publish_state(pressure_kpa);
   } else {
     ESP_LOGW(TAG, "Failed to read pressure");
-    status_set_warning();
+    this->status_set_warning();
   }
 }
 
 bool Sensor6847D::read_pressure(float *pressure_kpa) {
-  // Start combined temperature + pressure conversion.
+  // Start a combined pressure/temperature conversion.
   uint8_t command = CMD_MEASURE;
 
   if (!this->write_register(CMD_REGISTER, &command, 1)) {
@@ -38,7 +36,7 @@ bool Sensor6847D::read_pressure(float *pressure_kpa) {
     return false;
   }
 
-  // The datasheet specifies approximately 20 ms for conversion.
+  // Allow the sensor to complete the conversion.
   delay(20);
 
   // Read the three pressure bytes.
@@ -49,13 +47,13 @@ bool Sensor6847D::read_pressure(float *pressure_kpa) {
     return false;
   }
 
+  // Assemble the 24-bit value.
   uint32_t raw =
       (static_cast<uint32_t>(data[0]) << 16) |
       (static_cast<uint32_t>(data[1]) << 8) |
       static_cast<uint32_t>(data[2]);
 
-  // Convert unsigned 24-bit representation to signed 24-bit
-  // two's-complement value.
+  // Convert 24-bit two's-complement to signed int32.
   int32_t signed_raw;
 
   if (raw & 0x800000) {
@@ -66,8 +64,8 @@ bool Sensor6847D::read_pressure(float *pressure_kpa) {
 
   // K = 64 for the -100 to +100 kPa version.
   //
-  // Datasheet result is in Pa.
-  float pressure_pa =
+  // Result from the sensor is in Pa.
+  const float pressure_pa =
       static_cast<float>(signed_raw) / PRESSURE_K;
 
   *pressure_kpa = pressure_pa / 1000.0f;
@@ -79,9 +77,9 @@ bool Sensor6847D::read_pressure(float *pressure_kpa) {
       *pressure_kpa
   );
 
-  status_clear_warning();
+  this->status_clear_warning();
   return true;
 }
 
-}  // namespace 6847d
+}  // namespace xgzp6847d
 }  // namespace esphome
