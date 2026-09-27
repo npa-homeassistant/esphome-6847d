@@ -5,11 +5,11 @@
 #include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
-namespace 6847d {
+namespace xgzp6847d {
 
 class Sensor6847D : public PollingComponent,
-                   public sensor::Sensor,
-                   public i2c::I2CDevice {
+                    public sensor::Sensor,
+                    public i2c::I2CDevice {
  public:
   void setup() override;
   void update() override;
@@ -18,5 +18,5 @@ class Sensor6847D : public PollingComponent,
   bool read_pressure(float *pressure_kpa);
 };
 
-}  // namespace 6847d
+}  // namespace xgzp6847d
 }  // namespace esphome
